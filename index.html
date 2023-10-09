@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Sort Visualization</title>
+    <style>
+        body {
+            background-color: rgb(167, 157, 157);
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin: 0px;
+        }
+
+        h3 {
+            margin: 10px;
+        }
+
+        h1,
+        h3 {
+            color: rgb(63, 28, 217);
+        }
+
+        .container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .array-grid {
+            display: flex;
+            flex-direction: row;
+            /* Display arrays horizontally */
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .array-grid > div {
+            width: 50px;
+            height: 50px;
+            background-color: #b2ae33;
+            border: 1px solid #101011;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: #0e0d0d;
+            margin-right: 2px;
+            /* Add some spacing between cells */
+        }
+
+        #start-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #27ae60;
+            color: #ffffff9f;
+            border: none;
+            cursor: pointer;
+        }
+
+        #input-array {
+            margin-top: 20px;
+            padding: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1 align="center">Merge Sort</h1>
+    <h3 align="center">Madhu (VU21CSEN0100008)</h3>
+    <div class="container">
+        <label for="input-array">Enter numbers separated by commas:</label>
+        <input type="text" id="input-array" placeholder="e.g., 4, 2, 7, 1, 9, 3, 6, 5, 8">
+        <button id="start-button">Start Merge Sort</button>
+        <div class="array-grid" id="initial-array-grid">
+        </div>
+    </div>
+    <script>
+        // Merge Sort Implementation
+        function mergeSort(arr) {
+            if (arr.length <= 1) {
+                return arr;
+            }
+
+            const middle = Math.floor(arr.length / 2);
+            const left = arr.slice(0, middle);
+            const right = arr.slice(middle);
+
+            return merge(mergeSort(left), mergeSort(right));
+        }
+
+        function merge(left, right) {
+            let result = [];
+            let leftIndex = 0;
+            let rightIndex = 0;
+
+            while (leftIndex < left.length && rightIndex < right.length) {
+                if (left[leftIndex] < right[rightIndex]) {
+                    result.push(left[leftIndex]);
+                    leftIndex++;
+                } else {
+                    result.push(right[rightIndex]);
+                    rightIndex++;
+                }
+            }
+
+            return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
+        }
+
+        // Visualization
+        const initialArrayGrid = document.getElementById('initial-array-grid');
+        const startButton = document.getElementById('start-button');
+        const inputArray = document.getElementById('input-array');
+
+        startButton.addEventListener('click', () => {
+            startButton.style.display = 'none';
+            const userInput = inputArray.value.trim();
+
+            // Validate and parse user input
+            const userArray = userInput.split(',').map(num => parseInt(num.trim()));
+
+            if (validateInput(userArray)) {
+                // Clear initial array grid
+                initialArrayGrid.innerHTML = '';
+
+                // Display the user input array in grid format
+                userArray.forEach((value) => {
+                    const cell = document.createElement('div');
+                    cell.classList.add('array-grid');
+                    cell.textContent = value;
+                    initialArrayGrid.appendChild(cell);
+                });
+
+                // Start Merge Sort visualization
+                visualizeMergeSort(userArray);
+            } else {
+                alert('Invalid input. Please enter numbers separated by commas.');
+            }
+        });
+
+        function validateInput(arr) {
+            // Check if the input is a non-empty array of numbers
+            return Array.isArray(arr) && arr.length > 0 && arr.every(num => !isNaN(num));
+        }
+
+        function visualizeMergeSort(arr) {
+            const steps = mergeSortSteps(arr);
+            let stepIndex = 0;
+
+            function displayStep() {
+                if (stepIndex < steps.length) {
+                    const step = steps[stepIndex];
+
+                    // Create a container for the sorted array
+                    const sortedArrayGrid = createGridFromArray(step);
+
+                    // Display the sorted array at each step
+                    document.body.appendChild(sortedArrayGrid);
+
+                    stepIndex++;
+                    setTimeout(displayStep, 1000); // Adjust the delay between steps as needed
+                }
+            }
+
+            displayStep();
+        }
+
+        function mergeSortSteps(arr) {
+            const steps = [];
+
+            function mergeSortStep(arr) {
+                if (arr.length <= 1) {
+                    return arr;
+                }
+
+                const middle = Math.floor(arr.length / 2);
+                const left = arr.slice(0, middle);
+                const right = arr.slice(middle);
+
+                const step = merge(mergeSortStep(left), mergeSortStep(right));
+                steps.push([...step]); // Clone the array
+                return step;
+            }
+
+            mergeSortStep(arr);
+            return steps;
+        }
+
+        function createGridFromArray(arr) {
+            const grid = document.createElement('div');
+            grid.classList.add('array-grid');
+
+            arr.forEach((value) => {
+                const cell = document.createElement('div');
+                cell.textContent = value;
+                cell.classList.add('array-grid-cell');
+                grid.appendChild(cell);
+            });
+
+            return grid;
+        }
+    </script>
+</body>
+</html>
